@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Entreprise
+model Entreprise {
+  id                Int                 @id @default(autoincrement())
+  nom               String
+  siegeSocial       String
+  dateCreation      DateTime
+  identifiantFiscal String
+  capital           Float
+  nombreEmployes    Int
+  ville             String
+  responsable       String
+  telephone         String
+  email             String
+  Facture           Facture[]
+  Approvisionnement Approvisionnement[]
+}
+
+// Produit
+model Produit {
+  id                     Int                      @id @default(autoincrement())
+  nom                    String
+  prixAchat              Float
+  prixVente              Float
+  tauxMarge              Float
+  dimension              String
+  taille                 String
+  LigneFacture           LigneFacture[]
+  LigneApprovisionnement LigneApprovisionnement[]
+}
+
+// Client
+model Client {
+  id        Int       @id @default(autoincrement())
+  nom       String
+  prenom    String
+  adresse   String
+  ville     String
+  telephone String
+  email     String
+  Facture   Facture[]
+}
+
+// Fournisseur
+model Fournisseur {
+  id                Int                 @id @default(autoincrement())
+  nom               String
+  adresse           String
+  ville             String
+  telephone         String
+  email             String
+  Approvisionnement Approvisionnement[]
+}
+
+// Facture
+model Facture {
+  id           Int            @id @default(autoincrement())
+  entreprise   Entreprise     @relation(fields: [entrepriseId], references: [id])
+  entrepriseId Int
+  client       Client         @relation(fields: [clientId], references: [id])
+  clientId     Int
+  date         DateTime
+  LigneFacture LigneFacture[]
+}
+
+// LigneFacture
+model LigneFacture {
+  id        Int     @id @default(autoincrement())
+  facture   Facture @relation(fields: [factureId], references: [id])
+  factureId Int
+  produit   Produit @relation(fields: [produitId], references: [id])
+  produitId Int
+  quantite  Int
+}
+
+// Approvisionnement
+model Approvisionnement {
+  id                     Int                      @id @default(autoincrement())
+  entreprise             Entreprise               @relation(fields: [entrepriseId], references: [id])
+  entrepriseId           Int
+  fournisseur            Fournisseur              @relation(fields: [fournisseurId], references: [id])
+  fournisseurId          Int
+  date                   DateTime
+  LigneApprovisionnement LigneApprovisionnement[]
+}
+
+// LigneApprovisionnement
+model LigneApprovisionnement {
+  id                  Int               @id @default(autoincrement())
+  approvisionnement   Approvisionnement @relation(fields: [approvisionnementId], references: [id])
+  approvisionnementId Int
+  produit             Produit           @relation(fields: [produitId], references: [id])
+  produitId           Int
+  quantite            Int
+}
